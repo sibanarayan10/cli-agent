@@ -1,0 +1,12 @@
+{
+  "name": "@cli-agent/core",
+  "version": "0.1.0",
+  "module": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "build": "bun build src/index.ts"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.52"
+  }
+}

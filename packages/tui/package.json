@@ -1,0 +1,31 @@
+{
+  "name": "@cli-agent/tui",
+  "version": "0.1.0",
+  "module": "src/index.tsx",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/index.tsx",
+    "dev": "bun --watch src/index.tsx"
+  },
+  "dependencies": {
+    "@cli-agent/core": "workspace:*",
+    "boxen": "^9.0.0",
+    "chalk": "^6.0.1",
+    "cli-highlight": "^2.1.11",
+    "cli-truncate": "^6.1.1",
+    "commander": "^15.0.0",
+    "diff": "^9.0.0",
+    "figures": "^6.1.0",
+    "ink": "^8.0.0",
+    "ink-markdown": "^1.0.4",
+    "ink-select-input": "^6.2.0",
+    "ink-spinner": "^5.0.0",
+    "ink-text-input": "^6.0.0",
+    "react": "^19.3.0",
+    "string-width": "^8.3.0"
+  },
+  "devDependencies": {
+    "@types/diff": "^8.0.0",
+    "@types/react": "^19.3.0"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "cli-agent-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "start": "bun run --cwd packages/tui start",
+    "dev": "bun --watch --cwd packages/tui src/index.tsx"
+  }
+}
