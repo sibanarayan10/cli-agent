@@ -5,11 +5,36 @@ private __state:MutableAgentState;
 private event:AgentEvent;
 private steeringQueue:AgentMessage[];
 private followingQueue:AgentMessage[];
-async prompt(input:AgentMessage[] | AgentMessage): Promise<AgentMessage[]> ;
-async prompt(input:string,imageContent:ImageContent[]): Promise<AgentMessage[]>;
-async prompt(input:string|AgentMessage[] |AgentMessage,imageContent:ImageContent,abortSignal:AbortSignal):Promise<AgentMessage[]>{
-    return new Promise<Array<AgentMessage>>([]);
-};
+async prompt(input: AgentMessage[] | AgentMessage): Promise<AgentMessage[]>;
+async prompt(
+  input: string,
+  imageContent?: ImageContent[]
+): Promise<AgentMessage[]>;
+async prompt(
+  input: string | AgentMessage[] | AgentMessage,
+  imageContent?: ImageContent[],
+  abortSignal?: AbortSignal
+): Promise<AgentMessage[]> {
+  const normalizedMessages: AgentMessage[] = this.normalizePrompt(input, imageContent);
+  if (this.state) {
+    this.state.messages = [...this.state.messages, ...normalizedMessages];
+  }
+  const steeringMessages = this.consumeSteeringQueue();
+  const transformedContext = await this.applyTransformContext(this.state.messages);
+  return [...normalizedMessages, ...steeringMessages];
+}
+
+/**
+ * Applies the user-defined transformContext middleware hook (if defined).
+ * Returns the transformed messages array.
+ */
+public async applyTransformContext(messages: AgentMessage[]): Promise<AgentMessage[]> {
+  if (this.transformContext) {
+    return await this.transformContext(messages);
+  }
+  return messages;
+}
+
 public transformContext:(messages:AgentMessage[])=>Promise<AgentMessage[]>|AgentMessage[];
 public convertToLLM:(messages:AgentMessage[])=>Message[]|Promise<Message[]>;
 public beforeToolCall:(context:AgentMessage[])=>BeforeToolCallResult
@@ -24,12 +49,39 @@ set state(currState:MutableAgentState){
 	this.__state=currState;
 }
 
-public addToSteeringQueue(input:AgentMessage){
-	this.steeringQueue.push(input);
-};
-public addToFollowingQueue(input:AgentMessage){
-	this.followingQueue.push(input);
-};
+public addToSteeringQueue(input: AgentMessage) {
+  this.steeringQueue.push(input);
+}
+
+public addToFollowingQueue(input: AgentMessage) {
+  this.followingQueue.push(input);
+}
+
+/**
+ * Drains all queued steering messages, appends them to active state messages,
+ * and returns the drained messages.
+ */
+public consumeSteeringQueue(): AgentMessage[] {
+  if (!this.steeringQueue || this.steeringQueue.length === 0) return [];
+  const steeringMessages = this.steeringQueue.splice(0, this.steeringQueue.length);
+  if (this.state) {
+    this.state.messages = [...this.state.messages, ...steeringMessages];
+  }
+  return steeringMessages;
+}
+
+/**
+ * Drains all queued following messages, appends them to active state messages,
+ * and returns the drained messages.
+ */
+public consumeFollowingQueue(): AgentMessage[] {
+  if (!this.followingQueue || this.followingQueue.length === 0) return [];
+  const followingMessages = this.followingQueue.splice(0, this.followingQueue.length);
+  if (this.state) {
+    this.state.messages = [...this.state.messages, ...followingMessages];
+  }
+  return followingMessages;
+}
 
 set availableTools(tools:Tool[]){
 	this.__availableTools.concat(tools);
@@ -48,6 +100,14 @@ get availableTools(){
 }
 
 constructor(){}
+
+
+private normalizePrompt(messages:TextContent,imageContent?:ImageContent):AgentMessage[]{
+
+
+  
+  return [];
+}
 
 }
 
